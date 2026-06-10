@@ -1,3 +1,5 @@
+> Part of [**app-pixels.com**](https://www.app-pixels.com) — browse + flash this app at [`/apps/recorder`](https://www.app-pixels.com/apps/recorder).
+
 # recorder
 
 **Recorder** · v1.0.0
