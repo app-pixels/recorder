@@ -336,7 +336,7 @@ static void stopPlayback() {
 }
 
 // ── App entry points ─────────────────────────────────────────────────────────
-void app_recorder_setup(Arduino_SH8601 *gfx) {
+void app_recorder_setup(Arduino_OLED *gfx) {
     (void)gfx;
     canvas   = g_canvas;
     s_state  = REC_IDLE;
