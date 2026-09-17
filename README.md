@@ -2,7 +2,7 @@
 
 # recorder
 
-**Recorder** · v1.0.0
+**Recorder** · v1.0.2
 
 Voice recorder. Saves WAV files to the SD card.
 

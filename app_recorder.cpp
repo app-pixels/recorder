@@ -24,9 +24,8 @@
 #include <math.h>
 #include <string.h>
 #include "canvas/Arduino_Canvas.h"
-#include "pin_config.h"
+#include "board.h"
 #include "HWCDC.h"
-#include "TouchDrvFT6X36.hpp"
 
 extern USBCDC USBSerial;
 extern Arduino_Canvas *g_canvas;
@@ -39,7 +38,10 @@ extern Arduino_Canvas *g_canvas;
 #define BOOT_LONG_MS 800
 
 static Arduino_Canvas  *canvas = nullptr;
-static TouchDrvFT6X36   s_touch;
+// Built via board_make_touch() so the right driver is chosen per board
+// revision. A raw FocalTech instance talks to 0x38, which nothing answers
+// on an AMOLED-1.8 V2 (CST816 @0x15) — touch was silently dead there.
+static TouchDrvInterface *s_touch = nullptr;
 static bool             s_touchWas = false;
 
 enum RecState { REC_IDLE, REC_RECORDING, REC_PLAYING, REC_PENDING };
@@ -352,8 +354,8 @@ void app_recorder_setup(Arduino_OLED *gfx) {
 
     audio_engine_init();
     pinMode(BOOT_BTN, INPUT_PULLUP);
-    if (!s_touch.begin(Wire, FT6X36_SLAVE_ADDRESS, IIC_SDA, IIC_SCL))
-        USBSerial.println("FT6X36 init failed (recorder)");
+    s_touch = board_make_touch();
+        if (!s_touch) USBSerial.println("touch init failed");
     s_touchWas = false;
 
     // Initial scan
@@ -416,7 +418,7 @@ void app_recorder_loop() {
     // ── Touch — tap a row to select; tap scroll arrows to scroll ────────
     if (s_state == REC_IDLE && s_nFiles > 0) {
         int16_t tx, ty;
-        bool touching = s_touch.getPoint(&tx, &ty, 1);
+        bool touching = s_touch && s_touch->getPoint(&tx, &ty, 1);
         if (touching && !s_touchWas) {
             const int16_t listTop = 232;
             const int16_t rowH    = 30;
